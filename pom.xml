@@ -4,37 +4,76 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.redhat.samples</groupId>
-  <artifactId>camel-readfile-parent</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>camel-readfile</artifactId>
+  <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
 
-  <name>Camel Readfile Component Parent</name>
-  <description>Parent project for Camel {Readfile} Component</description>
+  <name>Camel Readfile Component</name>
 
   <properties>
-    <camelVersion>3.0.0</camelVersion>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
-
-  <modules>
-    <module>camel-readfile-component</module>
-    <module>camel-readfile-api</module>
-  </modules>
 
   <dependencyManagement>
     <dependencies>
       <!-- Camel BOM -->
       <dependency>
         <groupId>org.apache.camel</groupId>
-        <artifactId>camel-parent</artifactId>
-        <version>${camelVersion}</version>
+        <artifactId>camel-bom</artifactId>
+        <version>3.0.0</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+    </dependency>
+    
+    <!-- support camel documentation -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>apt</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+    
+    <!-- logging -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.12.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.12.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>2.12.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- testing -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
   <build>
+    <defaultGoal>install</defaultGoal>
+
     <plugins>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -44,6 +83,53 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+
+      <!-- generate components meta-data and validate component includes documentation etc -->
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-package-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>prepare</id>
+            <goals>
+              <goal>prepare-components</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+          <execution>
+            <id>validate</id>
+            <goals>
+              <goal>validate-components</goal>
+            </goals>
+            <phase>prepare-package</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- OSGi support (remove if not using OSGi) -->
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>4.2.1</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>com.redhat.samples.camel-readfile</Bundle-SymbolicName>
+            <Export-Service>org.apache.camel.spi.ComponentResolver;component=readfile</Export-Service>
+          </instructions>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
 
